@@ -8,9 +8,12 @@ import javax.swing.border.Border;
 
 public class OrderingSystem {
 
+    //Main Class
     public static void main(String[] args) {
-       new LogIn();
-       //new MainPage();
+       SupplyCatalog supply = new SupplyCatalog();
+       //Calls on the LogIn frame with the supply class
+       new LogIn(supply);
+       //new MainPage(supply);
        //SupplyCatalog obj = new SupplyCatalog();
     }
     

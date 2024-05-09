@@ -13,7 +13,7 @@ public class MainPage extends JFrame implements ActionListener, KeyListener, Mou
     //the frame
         JFrame mainPage = new JFrame();
     //the three panels (colored in grey)
-        JPanel register, table, receipt;
+        JPanel register, table, receipt, computation, mainPanel;
     //texts in the topPanel
         JLabel productID, productName, quantity, price, subtotalprice;
     //TextFields in the topPanel
@@ -47,14 +47,27 @@ public class MainPage extends JFrame implements ActionListener, KeyListener, Mou
         JLabel image;
     //ScrollPane for Receipt
         JTextArea Receipt;
-         
-        @SuppressWarnings("LeakingThisInConstructor")
-    MainPage(){
+    //CardLayout
+        CardLayout card = new CardLayout();
+        JPanel cardPanel = new JPanel(card);
+        SupplyCatalog supply;
+
+    MainPage(SupplyCatalog supplycatalog){
+        
+        this.supply = supplycatalog;
+        
+        cardPanel.setBounds(0, 0, 1335, 635);
         
         //icon
-        ImageIcon icon = new ImageIcon("Logo.png");
+        ImageIcon icon = new ImageIcon("C:\\Users\\arnel\\OneDrive\\Desktop\\Coding\\OrderingSystem\\src\\orderingsystem\\Logo.png");
         image = new JLabel(icon);
         image.setBounds(140, 10, 100, 70);
+        
+       
+        //mainPanel settings
+        mainPanel = new JPanel();
+        mainPanel.setSize(1335, 635);
+        mainPanel.setLayout(null);
 
         //top panel
         register = new JPanel();
@@ -67,6 +80,8 @@ public class MainPage extends JFrame implements ActionListener, KeyListener, Mou
         productID.setFont(new Font("Arial", Font.PLAIN, 20));
         
         prodIDField = new JTextField();
+        //added the listener here so that when the user pressed "enter key"
+        //the code will not perform something else that uses the same key
         prodIDField.addKeyListener(new KeyAdapter() {
         @Override
         public void keyPressed(KeyEvent enew) {
@@ -82,7 +97,17 @@ public class MainPage extends JFrame implements ActionListener, KeyListener, Mou
         productName.setBounds(220, 35, 150, 30);
         productName.setFont(new Font("Arial", Font.PLAIN, 20));
         
+        //added the listener here so that when the user pressed "enter key"
+        //the code will not perform something else that uses the same key
         prodNameField = new JTextField();
+        prodNameField.addKeyListener(new KeyAdapter() {
+        @Override
+        public void keyPressed(KeyEvent enew) {
+        if (enew.getKeyCode() == KeyEvent.VK_ENTER) {
+            productDatabase func = new productDatabase(MainPage.this);   
+        }
+    }
+});
         prodNameField.setFont(new Font ("Arial", Font.PLAIN, 15));
         prodNameField.setBounds(170, 75, 220, 30);
         
@@ -90,7 +115,20 @@ public class MainPage extends JFrame implements ActionListener, KeyListener, Mou
         quantity.setBounds(430, 35, 150, 30);
         quantity.setFont(new Font("Arial", Font.PLAIN, 20));
         
+        //added the listener here so that when the user pressed "enter key"
+        //the code will not perform something else that uses the same key
         qtyField = new JTextField();
+        qtyField.addKeyListener(new KeyAdapter() {
+        @Override
+        public void keyPressed(KeyEvent calc) {
+        if (calc.getKeyCode() == KeyEvent.VK_ENTER) {
+           Integer qt = Integer.valueOf(qtyField.getText());
+           Double price = Double.valueOf(priceField.getText());
+           String subtotal = String.valueOf(qt * price);
+           subtotalpriceField.setText(subtotal);          
+        }
+    }
+});
         qtyField.setFont(new Font ("Arial", Font.PLAIN, 15));
         qtyField.setBounds(420, 75, 100, 30);
         
@@ -208,12 +246,13 @@ public class MainPage extends JFrame implements ActionListener, KeyListener, Mou
     //buttons
         buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.setBounds(15, 640, 250, 35);
-        buttonPanel.setBackground(new Color(210, 213, 218));  
-    
+        //buttonPanel.setBackground(new Color(210, 213, 218));  
+
         mainButton = new JButton("Main");
         mainButton.setBackground(Color.GREEN);
         mainButton.setForeground(Color.BLACK);
         mainButton.setFocusable(false);
+        mainButton.addMouseListener(this);
         mainButton.setFont(new Font("Arial", Font.PLAIN, 15));
         mainButton.setSize(100, 30);
         
@@ -238,63 +277,80 @@ public class MainPage extends JFrame implements ActionListener, KeyListener, Mou
         buttonPanel.add(supplyButton);
         buttonPanel.add(salesButton);
         
-    ///adds all panels onto the frame
-        mainPage.add(buttonPanel);
-        mainPage.add(receipt);
-        mainPage.add(register);  
-        mainPage.add(table); 
+    //Panel for Total, Pay, Balance 
+        computation = new JPanel();
+        computation.setBackground(new Color(210, 213, 218));
+        computation.setBounds(960, 15, 375, 300);
+        computation.setLayout(null);
         
     //Total, Pay, Balance
         totalLabel = new JLabel("Total");
-        totalLabel.setBounds(1120, 15, 150, 30);
+        totalLabel.setBounds(165, 10, 150, 30);
         totalLabel.setFont(new Font("Arial", Font.BOLD, 20));
         
         totalTextField = new JTextField();
-        totalTextField.setBounds(1080, 50, 150, 30);
+        totalTextField.setBounds(120, 40, 150, 30);
         totalTextField.setFont(new Font("Arial", Font.BOLD, 25));
        //totalTextField.setEditable(false);
         
         payLabel = new JLabel("Pay");
-        payLabel.setBounds(1125, 90, 150, 30);
+        payLabel.setBounds(170, 80, 150, 30);
         payLabel.setFont(new Font("Arial", Font.BOLD, 20));
         
         payTextField = new JTextField();
-        payTextField.setBounds(1080, 130, 150, 30);
+        payTextField.setBounds(120, 110, 150, 30);
         payTextField.setFont(new Font("Arial", Font.BOLD, 25));
         payTextField.addKeyListener(this);
      
         balanceLabel = new JLabel("Balance");
-        balanceLabel.setBounds(1110, 170, 150, 30);
+        balanceLabel.setBounds(160, 150, 150, 30);
         balanceLabel.setFont(new Font("Arial", Font.BOLD, 20));
         
         balanceTextField = new JTextField();
-        balanceTextField.setBounds(1080, 210, 150, 30);
+        balanceTextField.setBounds(120, 180, 150, 30);
         balanceTextField.setFont(new Font("Arial", Font.BOLD, 25));
         
         printBillButton = new JButton("Print Bill");
-        printBillButton.setBounds(1090, 265, 120, 40);
+        printBillButton.setBounds(135, 245, 120, 40);
         printBillButton.addActionListener(this);
         printBillButton.setFont(new Font("Arial", Font.BOLD, 15));
         printBillButton.setFocusable(false);
         printBillButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
     //adds all the elements for the Total, Pay, Balance section   
-        mainPage.add(printBillButton);
-        mainPage.add(balanceTextField);
-        mainPage.add(balanceLabel);
-        mainPage.add(payTextField);
-        mainPage.add(payLabel);
-        mainPage.add(totalTextField);
-        mainPage.add(totalLabel);
+        computation.add(printBillButton);
+        computation.add(balanceTextField);
+        computation.add(balanceLabel);
+        computation.add(payTextField);
+        computation.add(payLabel);
+        computation.add(totalTextField);
+        computation.add(totalLabel); 
+   
+    ///adds 4 panels onto the CardLayout panel
+        
+        mainPanel.add(computation);
+        mainPanel.add(receipt);
+        mainPanel.add(register);  
+        mainPanel.add(table); 
+   
+        cardPanel.add(mainPanel, "Main");
+        cardPanel.add(supply.supplyPanel, "Supply");
+        
+        
+    //adds button panel to the frame
+        mainPage.add(cardPanel);
+        mainPage.add(buttonPanel);
         
     //settings of our frame  
         mainPage.setSize(1365, 720);
+        mainPage.setLayout(null);
         mainPage.setResizable(false);
+        mainPage.setIconImage(icon.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH));
         mainPage.setTitle("Ordering System");
         mainPage.setIconImage(icon.getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH));
-        mainPage.setLocationRelativeTo(null);
-        mainPage.setLayout(null);
+        mainPage.setLocationRelativeTo(null);     
         mainPage.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        
         mainPage.setVisible(true);
      
         
@@ -409,7 +465,6 @@ public class MainPage extends JFrame implements ActionListener, KeyListener, Mou
 //the code below will get the text in the total, pay, and balance field and turn them into integers
 //and calculate them
     
-    
     @Override
     public void keyPressed(KeyEvent e) {
        
@@ -420,7 +475,7 @@ public class MainPage extends JFrame implements ActionListener, KeyListener, Mou
             String result = String.valueOf(num2 - num1);
             
             if (num2 < num1) {
-                JOptionPane.showMessageDialog(null, "GAGO KULANG!");
+                JOptionPane.showMessageDialog(null, "Insufficient Payment");
                 balanceTextField.setText("");
             }
             else {
@@ -433,7 +488,7 @@ public class MainPage extends JFrame implements ActionListener, KeyListener, Mou
         }
         }
         catch (NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(null, "Only enter numbers.");
+            JOptionPane.showMessageDialog(null, "Only enter numbers");
         }
 
         
@@ -462,9 +517,13 @@ public class MainPage extends JFrame implements ActionListener, KeyListener, Mou
     public void mouseClicked(MouseEvent e) {   
         
         if (e.getSource() == supplyButton) {
-                mainPage.dispose();
-                new SupplyCatalog();
-                }
+            card.show(cardPanel, "Supply");
+        }
+        
+        if(e.getSource() == mainButton) {
+            card.show(cardPanel, "Main");
+        }
+        
         if (e.getSource() == salesButton) {
                 mainPage.dispose();
         }

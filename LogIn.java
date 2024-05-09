@@ -22,8 +22,11 @@ public class LogIn extends JFrame implements ActionListener{
     JLabel welcomeMessage;
     JLabel image;
     JPanel background;
-
-    LogIn() {
+    SupplyCatalog supply;
+    
+//calls the SupplyCatalog class because it is called in the mainPage which will be called later on
+    LogIn(SupplyCatalog supplycatalog) {
+        this.supply = supplycatalog;
 
         background = new JPanel();
         background.setBackground(new Color(250,240,230));
@@ -97,32 +100,40 @@ public class LogIn extends JFrame implements ActionListener{
            
     @Override
     public void actionPerformed (ActionEvent e) {
-         
+    //if button is pressed then the following codes will perform
         if (e.getSource() == button) {
         String userID = inputUser.getText();
         String password = String.valueOf(inputPassword.getPassword());
 
-        
+        //SQL syntax to scan and select from the database, 
+        //this is to see if the user's input match something from the database
         String sql = "SELECT Password FROM login.accounts WHERE Username = ?";
+        //connects to the database
         try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/products", "root", "PassWord");
              PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setString(1, userID);
             ResultSet rs = pst.executeQuery();
 
-           
+        //this scans every row in the database to see if the user's input match with anything,   
             if (rs.next()) {
                 String storedPassword = rs.getString("Password");
+                //states that if the password from the database matched with the user's password input
                 if (storedPassword.equals(password)) {
+                //it will dispose this frame and open up the MainPage frame
                     frame.dispose();
-                    new MainPage();
+                    new MainPage(supply);
                    
                 } 
                 else {
+                    //if the user's password input doesn't match with anything in the database
+                    //it will pop an alert showing the String
                     JOptionPane.showMessageDialog(this, "Incorrect Password");
                     /*popUpMessage.setBounds(160, 190, 500, 10);
                     popUpMessage.setForeground(Color.red);
                     popUpMessage.setText("Incorrect Password");*/
                 }
+                //if the user's username input doesn't match with anything in the database
+                //it will pop an alert showing the String
             } else { 
                 JOptionPane.showMessageDialog(this, "Username not found");
                /* popUpMessage.setBounds(160, 130, 500, 10);
@@ -135,6 +146,7 @@ public class LogIn extends JFrame implements ActionListener{
     }
         
         if (e.getSource() == signUp) {
+            //if the user pressed the SignUp button, it will call the SignIn class
             SignIn createNewAccount = new SignIn();
         }
     }
